@@ -129,10 +129,12 @@ venv.bak/
 dmypy.json
 
 # Pyre type checker
+.idea
 .pyre/
 .gitignore
 .idea/ArticleSpider.iml
 .idea/inspectionProfiles/
+.idea/misc.xml
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
