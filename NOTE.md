@@ -57,10 +57,9 @@
 ### Scrapy爬虫课程
    #### 基本知识
     - 网页抓取常见方案： 
-       深度优先， 广度优先 
-    
+       深度优先， 广度优先   
    #### pycharm调试scrapy项目代码
-   >在项目的根目录下建立这个文件夹，导入包，写入自己的爬虫（cnblogs）
+   >在项目的根目录下建立这个文件，导入包，写入自己的爬虫（cnblogs）
    ```python
    from scrapy.cmdline import execute
    import  sys
@@ -70,3 +69,27 @@
    execute(["scrapy","crawl","cnblogs"])
 
    ```
+   #### xpath的使用
+   - 简介 
+     xpath使用路径表达式在xml和html中导航、包含标志的函数库、 是一个w3c的标准、  
+   - xpath语法  
+    article 选取所有article的所以子节点  
+    /article 选取所有根元素article  
+    article//div 选取所有属于article元素的后代div元素，无论在哪里  
+    //@class  选取所有名为class的属性元素  
+    /article/div[1]  父元素的第一个div元素  
+    /parent/div[last()] 选取最后一个 可以进行加减运算  
+    //div[@lang]  所有有lang属性的div元素  
+    //div[@lang='eng]  所有有lang属性的div元素  
+    ---  
+    /div/*  选取属于div元素 所有子节点
+    //*     选取所有元素
+    //div[@*]  选取所有带属性的元素
+    /div/a | //div/p 或者  
+    
+   -  **例子**    
+      >  //div[@id="news_list"]//h2[@class="news_entry"]/a/@href
+    
+    
+    
+      
