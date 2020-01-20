@@ -88,8 +88,36 @@
     /div/a | //div/p 或者  
     
    -  **例子**    
-      >  //div[@id="news_list"]//h2[@class="news_entry"]/a/@href
-    
-    
-    
-      
+      >  //div[@id="news_list"]//h2[@class="news_entry"]/a/@href  
+       
+   #### css选择器复习
+```python
+       *  所有元素
+       #container id选择器
+       .container  class选择器
+       li a 选取所有li下面的所有a节点 
+       ul + p   ul后的第一个元素
+       div#container > ul  选取指定div子元素
+       ================================ 
+       p ~ ul 选择前边有p元素的所有ul元素
+       a[title] 选择所有有title属性的a元素
+       a[href="xxxxx"] 属性为xx的a元素
+       a[href*="x"] 属性xx开头的a元素
+       a[href$="x"] 属性xx结尾的a元素
+       input[type=radio]:checked 选择选中的表单元素
+       ===================
+       div:not(#container)  选取所有非·
+       li:nth-child(3)  选取第三个元素
+       tr:nth-child(2n)  第偶数个tr
+``` 
+   #### 单独使用scrapy的选择器筛选html
+   使用 from scrapy import Selector
+   ```python
+    from scrapy import Selector
+     
+    def pars(text):
+        sel = Selector(text=text)
+        sel.css('[rule]').extract()
+        pass
+   ```
+  
