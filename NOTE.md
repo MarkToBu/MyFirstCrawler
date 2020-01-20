@@ -54,3 +54,19 @@
    https://www.lfd.uci.edu/~gohlke/pythonlibs/  
 ### Scrapy文档
    https://doc.scrapy.org/en/latest/intro/tutorial.html
+### Scrapy爬虫课程
+   #### 基本知识
+    - 网页抓取常见方案： 
+       深度优先， 广度优先 
+    
+   #### pycharm调试scrapy项目代码
+   >在项目的根目录下建立这个文件夹，导入包，写入自己的爬虫（cnblogs）
+   ```python
+   from scrapy.cmdline import execute
+   import  sys
+   import os
+
+   sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+   execute(["scrapy","crawl","cnblogs"])
+
+   ```
