@@ -7,6 +7,7 @@ import scrapy
 from scrapy import Request
 import requests
 from ArticleSpider.items import CdnBlogArtcleItem
+from ArticleSpider.utils import common
 
 class CnblogsSpider(scrapy.Spider):
     name = 'cnblogs'
@@ -63,6 +64,7 @@ class CnblogsSpider(scrapy.Spider):
 
            article_item.title = title
            article_item.create_date = create_date
+           article_item.url = response.url
            article_item.content = content
            article_item.tags = tag_list
            article_item.front_image_url = response.meta.get("front_image_url ","")
@@ -83,4 +85,12 @@ class CnblogsSpider(scrapy.Spider):
            totalView = j_data["TotalView"]
            diggCount = j_data["DiggCount"]
            buryCount = j_data["BuryCount"]
+
+           # article_item = CdnBlogArtcleItem()
+           article_item.praise_nums = diggCount
+           article_item.fav_nams = totalView
+           article_item.comment_nums = commentCount
+           article_item.url_object_id = common.get_md5(article_item.url)
+
+           yield article_item
            pass

@@ -17,11 +17,12 @@ class CdnBlogArtcleItem(scrapy.item):
     title = scrapy.Field()
     create_date = scrapy.Field()
     url = scrapy.Field()
+
     # 处理url
-    url_objct_id = scrapy.Field()
+    url_object_id = scrapy.Field()
     front_image_url = scrapy.Field()
     front_image_path = scrapy.Field()
-    praise_nams = scrapy.Field()
+    praise_nums = scrapy.Field()
     comment_nums = scrapy.Field()
     fav_nams = scrapy.Field()
     tags = scrapy.Field()
