@@ -120,4 +120,20 @@
         sel.css('[rule]').extract()
         pass
    ```
-  
+   #### 使用缓存调试scrapy scrapy shell
+   使用 **scrapy shell {url}** 可以缓存下网页的内容，不用反复去调用 
+   进入虚拟环境 运行 scrapy shell http://url.html
+   之后可以测试命令进行输入
+   
+   #### scrapy yield使用
+   yield Request(url=parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)),callback=self.parse_num)
+   与  
+   html = requests.get(parse.urljoin(response.url,"/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)))  
+   相对，yiled是异步请求，当请求完成时，会通知注册的callback方法
+   
+   #### scrapy item的使用
+   yield Request(url=parse.urljoin(response.url, post_url), meta={"front_image_url": image_url},callback=self.parse_detail)  
+   - meta的使用
+   response.meta.get("front_image_url ","")  
+   这样可以避免出现取值meta的时候出错
+   
