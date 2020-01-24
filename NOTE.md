@@ -137,3 +137,40 @@
    response.meta.get("front_image_url ","")  
    这样可以避免出现取值meta的时候出错
    
+   - scarpy item的定义
+   ```python
+    class CdnBlogArtcleItem(scrapy.Item):
+        title = scrapy.Field()
+        create_date = scrapy.Field()
+        url = scrapy.Field()
+
+        # 处理url
+        url_object_id = scrapy.Field()
+        front_image_url = scrapy.Field()
+        front_image_path = scrapy.Field()
+        praise_nums = scrapy.Field()
+        comment_nums = scrapy.Field()
+        fav_nums = scrapy.Field()
+        tags = scrapy.Field()
+        content = scrapy.Field()
+```   
+
+   - scrapy item的使用 赋值和访问
+   ```python
+        article_item = CdnBlogArtcleItem()
+        #赋值 
+        article_item["create_date"] = create_date
+        article_item["url"] = response.url
+        article_item["content"] = content
+        article_item["tags"] = tag_list
+        article_item["front_image_url"] = response.meta.get("front_image_url ", "")
+        #访问
+        article_item["content"]
+        yield article_item
+   ```
+   > **scrapy item可以 yield出去，之后会经由管道(piplines)进行处理**
+       
+    #### python中json的使用
+       import json  
+       
+       j_data = json.loads(response.text)

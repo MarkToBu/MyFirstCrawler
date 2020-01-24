@@ -13,7 +13,7 @@ class ArticlespiderItem(scrapy.Item):
     # name = scrapy.Field()
     pass
 
-class CdnBlogArtcleItem(scrapy.item):
+class CdnBlogArtcleItem(scrapy.Item):
     title = scrapy.Field()
     create_date = scrapy.Field()
     url = scrapy.Field()
@@ -24,7 +24,7 @@ class CdnBlogArtcleItem(scrapy.item):
     front_image_path = scrapy.Field()
     praise_nums = scrapy.Field()
     comment_nums = scrapy.Field()
-    fav_nams = scrapy.Field()
+    fav_nums = scrapy.Field()
     tags = scrapy.Field()
     content = scrapy.Field()
 
