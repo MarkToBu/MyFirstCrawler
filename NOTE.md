@@ -174,3 +174,31 @@
        import json  
        
        j_data = json.loads(response.text)
+   #### scrapy 下载图片
+   https://doc.scrapy.org/en/latest/topics/media-pipeline.html
+   1. 设置配置
+        Enabling your Media Pipeline
+        To enable your media pipeline you must first add it to your project ITEM_PIPELINES setting.
+
+        For Images Pipeline, use:
+
+        > ITEM_PIPELINES = {'scrapy.pipelines.images.ImagesPipeline': 1}
+        For Files Pipeline, use:
+
+        > ITEM_PIPELINES = {'scrapy.pipelines.files.FilesPipeline': 1}
+        Note
+
+        You can also use both the Files and Images Pipeline at the same time.
+
+        Then, configure the target storage setting to a valid value that will be used for storing the downloaded images. Otherwise the pipeline will remain disabled, even if you include it in the ITEM_PIPELINES setting.
+
+        For the Files Pipeline, set the FILES_STORE setting:
+
+        > FILES_STORE = '/path/to/valid/dir'
+        For the Images Pipeline, set the IMAGES_STORE setting:
+
+        > #设置文件目录
+        >IMAGES_STORE = '/path/to/valid/dir'
+  2. 
+    
+       
