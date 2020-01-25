@@ -176,7 +176,7 @@
        j_data = json.loads(response.text)
    #### scrapy 下载图片
    https://doc.scrapy.org/en/latest/topics/media-pipeline.html
-   1. 设置配置
+   1. 修改setting文件，设置配置
         Enabling your Media Pipeline
         To enable your media pipeline you must first add it to your project ITEM_PIPELINES setting.
 
@@ -197,8 +197,33 @@
         > FILES_STORE = '/path/to/valid/dir'
         For the Images Pipeline, set the IMAGES_STORE setting:
 
-        > #设置文件目录
-        >IMAGES_STORE = '/path/to/valid/dir'
-  2. 
-    
+        - 设置图片存储目录(IMAGES_STORE ),下载的字段(IMAGES_URLS_FIELD)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+        > IMAGES_URLS_FIELD = 'front_image_url'  
+        > project_dir = os.path.dirname(os.path.abspath(__file__))
+        > IMAGES_STORE = os.path.join(project_dir,'images')
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+   2. 自定义图片的存储逻辑
+      - 将下载的目录存储到item中,方便之后进行处理
+      1. 在piplines中新建类继承自ImagesPipline,重载item的处理方法，自定义图片处理逻辑，本例将图片的下载路径存到item中
+      ```python
+         class ArticleImagePipline(ImagesPipeline):
+            def item_completed(self, results, item, info):
+                if "front_image_url" in item:
+                    for ok,value in results:
+                        image_file_path = value["path"]
+                    item["front_image_path"] = image_file_path
+                return item
+     
+       ```  
+       2. 修改setting文件，将scrapy默认的处理类，修改为新建的 类(注释掉的为原先默认的)
+       ```python
+        ITEM_PIPELINES = {
+           'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
+           # 'scrapy.pipelines.images.ImagesPipeline': 1}
+           'ArticleSpider.pipelines.ArticleImagePipline': 1}
+        ```
+
+   
+
        

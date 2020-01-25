@@ -27,6 +27,7 @@ class CnblogsSpider(scrapy.Spider):
 
         2. 获取下一个的url并交给scrapy进行下载，下载完成后交给parse继续进行处理
         """
+        # todo 正式环境，解除限制
         post_nodes = response.css('div#news_list .news_block')[:1]
         for post_node in post_nodes:
             image_url = post_node.css('.entry_summary a img::attr(src)').extract_first("")
@@ -34,8 +35,8 @@ class CnblogsSpider(scrapy.Spider):
             yield Request(url=parse.urljoin(response.url, post_url), meta={"front_image_url": image_url},
                           callback=self.parse_detail)
         # 非调试放开这里 循环下一个url
-        # next_url = response.xpath("//div[@class='pager']/a[contains(text(),'Next >')]/@href").extract_first()
-        # yield Request(url=parse.urljoin(response.url, next_url), callback=self.parse)
+        next_url = response.xpath("//div[@class='pager']/a[contains(text(),'Next >')]/@href").extract_first()
+        yield Request(url=parse.urljoin(response.url, next_url), callback=self.parse)
 
         """
         方案二:
@@ -70,7 +71,6 @@ class CnblogsSpider(scrapy.Spider):
             article_item["content"] = content
             article_item["tags"] = tag_list
             article_item["front_image_url"] = [response.meta.get("front_image_url", "")]
-
             # 同步請请求和异步请求
             # html = requests.get("https://news.cnblogs.com/NewsAjax/GetAjaxNewsInfo?contentId=654012")
             # html = requests.get(parse.urljoin(response.url,"/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)))
@@ -78,7 +78,7 @@ class CnblogsSpider(scrapy.Spider):
             # '{"ContentID":654012,"CommentCount":0,"TotalView":31,"DiggCount":0,"BuryCount":0}
 
             # yield Request(url=parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)),meta={"article_item", article_item}, callback=self.parse_nums)
-            yield Request(url=parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)),meta={"article_item": article_item}, callback=self.parse_nums)
+            yield Request(url=parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)), meta={"article_item": article_item}, callback=self.parse_nums)
 
     def parse_nums(self, response):
         j_data = json.loads(response.text)
