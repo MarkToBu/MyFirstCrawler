@@ -220,10 +220,11 @@
        ```python
         ITEM_PIPELINES = {
            'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
-           # 'scrapy.pipelines.images.ImagesPipeline': 1}
            'ArticleSpider.pipelines.ArticleImagePipline': 1}
+           # 'scrapy.pipelines.images.ImagesPipeline': 1}
         ```
-
+   #### 
+      
    
 
        
