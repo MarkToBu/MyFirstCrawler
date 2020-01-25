@@ -70,7 +70,12 @@ class CnblogsSpider(scrapy.Spider):
             article_item["url"] = response.url
             article_item["content"] = content
             article_item["tags"] = tag_list
-            article_item["front_image_url"] = [response.meta.get("front_image_url", "")]
+            image_url = response.meta.get("front_image_url", "")
+            if image_url:
+                article_item["front_image_url"] = [image_url]
+            else:
+                article_item["front_image_url"] = []
+
             # 同步請请求和异步请求
             # html = requests.get("https://news.cnblogs.com/NewsAjax/GetAjaxNewsInfo?contentId=654012")
             # html = requests.get(parse.urljoin(response.url,"/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)))
