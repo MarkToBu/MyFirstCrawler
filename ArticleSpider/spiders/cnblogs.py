@@ -69,7 +69,7 @@ class CnblogsSpider(scrapy.Spider):
             article_item["create_date"] = create_date
             article_item["url"] = response.url
             article_item["content"] = content
-            article_item["tags"] = tag_list
+            article_item["tags"] = tags
             image_url = response.meta.get("front_image_url", "")
             if image_url:
                 article_item["front_image_url"] = [image_url]
@@ -99,3 +99,7 @@ class CnblogsSpider(scrapy.Spider):
         article_item["comment_nums"] = commentCount
         article_item["url_object_id"] = common.get_md5(article_item["url"])
         yield article_item
+
+
+
+

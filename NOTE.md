@@ -35,7 +35,7 @@
  4.  赋予用户外网访问权限 
       ```sql
        GRANT ALL PRIVILEGES ON database.* TO 'username'@'%' IDENTIFIED BY 'password' ;
-       # GRANT  ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION; 
+       # GRANT  ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root123456' WITH GRANT OPTION; 
        flush privileges; 
       然后执行quit命令退出mysql服务，执行如下命令重启mysql：
       service mysql restart
@@ -215,16 +215,73 @@
                     item["front_image_path"] = image_file_path
                 return item
      
-       ```  
+      ```  
        2. 修改setting文件，将scrapy默认的处理类，修改为新建的 类(注释掉的为原先默认的)
-       ```python
+      ```python
         ITEM_PIPELINES = {
            'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
            'ArticleSpider.pipelines.ArticleImagePipline': 1}
            # 'scrapy.pipelines.images.ImagesPipeline': 1}
+      ```
+   #### 将所得json数据导出到文件
+   参考文档：  https://docs.scrapy.org/en/latest/topics/exporters.html#module-scrapy.exporters
+   > 自己实现:       
+   1. 新建json处理类
+   
+       ```python
+        import codecs
+        import json
+        class JsonWithEncodingPipeline(object):
+            #自定义json文件的导出
+            def __init__(self):
+                self.file = codecs.open('article.json', 'a', encoding="utf-8")
+            def process_item(self, item, spider):
+                lines = json.dumps(dict(item), ensure_ascii=False) + "\n"
+                self.file.write(lines)
+                return item
+            def spider_closed(self, spider):
+                self.file.close()
+
         ```
-   #### 
+   2. 将item的处理类，注册到pipeline中 
+    在settings文件中加入该配置项,设置好优先级
+        ```python
+      ITEM_PIPELINES = {
+        'ArticleSpider.pipelines.ArticleImagePipeline': 1,
+        'ArticleSpider.pipelines.JsonWithEncodingPipeline': 2,
+        'ArticleSpider.pipelines.ArticlespiderPipeline': 300}
+        ```
+   > 官方实现
+   ```python
+        from scrapy.exporters import JsonItemExporter
+
+        class JsonExporterPipleline(object):
+            #调用scrapy提供的json export导出json文件
+            def __init__(self):
+                self.file = open('articleexport.json', 'wb')
+                self.exporter = JsonItemExporter(self.file, encoding="utf-8", ensure_ascii=False)
+                self.exporter.start_exporting()
+
+            def close_spider(self, spider):
+                self.exporter.finish_exporting()
+                self.file.close()
+
+            def process_item(self, item, spider):
+                self.exporter.export_item(item)
+                return item
+```       
+> 如上，在settings文件pipeline中进行配置
+
+
+
+    
+               
+       
       
+      
+    
+
+         
    
 
        
