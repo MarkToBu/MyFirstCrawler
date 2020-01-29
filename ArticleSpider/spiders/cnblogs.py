@@ -28,7 +28,7 @@ class CnblogsSpider(scrapy.Spider):
         2. 获取下一个的url并交给scrapy进行下载，下载完成后交给parse继续进行处理
         """
         # todo 正式环境，解除限制
-        post_nodes = response.css('div#news_list .news_block')[:1]
+        post_nodes = response.css('div#news_list .news_block')  #[:1]
         for post_node in post_nodes:
             image_url = post_node.css('.entry_summary a img::attr(src)').extract_first("")
             post_url = post_node.css('h2 a::attr(href)').extract_first("")

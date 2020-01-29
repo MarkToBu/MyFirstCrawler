@@ -70,6 +70,8 @@ ROBOTSTXT_OBEY = False
 ITEM_PIPELINES = {
     'ArticleSpider.pipelines.ArticleImagePipeline': 1,
     'ArticleSpider.pipelines.JsonWithEncodingPipeline': 2,
+    # 'ArticleSpider.pipelines.MysqlPipeline': 3,
+    'ArticleSpider.pipelines.MysqlTwistedPipline': 3,
     'ArticleSpider.pipelines.ArticlespiderPipeline': 300}
 # scrapy.pipelines.images.ImagesPipeline': 1}
 
@@ -97,3 +99,8 @@ ITEM_PIPELINES = {
 IMAGES_URLS_FIELD = 'front_image_url'
 project_dir = os.path.dirname(os.path.abspath(__file__))
 IMAGES_STORE = os.path.join(project_dir,'images')
+
+MYSQL_HOST = "rm-bp1z8e736h17ic2n2ao.mysql.rds.aliyuncs.com"
+MYSQL_DB = "mydb"
+MYSQL_USER = "root"
+MYSQL_PASSWD = "Lbj19841230"

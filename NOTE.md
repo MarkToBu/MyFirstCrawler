@@ -273,6 +273,13 @@
 > 如上，在settings文件pipeline中进行配置
 
 
+   #### Twisted 异步插入数据库
+   - 代码示例 
+   ```python
+    from twisted.enterprise import  adbapi
+
+```
+   
 
     
                
