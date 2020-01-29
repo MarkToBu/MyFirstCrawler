@@ -276,15 +276,81 @@
    #### Twisted 异步插入数据库
    - 代码示例 
    ```python
-    from twisted.enterprise import  adbapi
+from twisted.enterprise import  adbapi
+class MysqlTwistedPipline(object):
+
+    def __init__(self,dbpool):
+        self.dbpool = dbpool
+
+    @classmethod
+    def from_settings(cls,settings):
+        from MySQLdb.cursors import DictCursor
+        dbparams = dict(
+            host = settings["MYSQL_HOST"],
+            db = settings["MYSQL_DB"],
+            user = settings["MYSQL_USER"],
+            passwd = settings["MYSQL_PASSWD"],
+            charset = 'utf8',
+            cursorclass = DictCursor,
+            use_unicode = True,
+        )
+        dbpool = adbapi.ConnectionPool("MySQLdb",**dbparams)
+
+        return cls(dbpool)
+
+    def process_item(self, item, spider):
+        query = self.dbpool.runInteraction(self.do_insert, item)
+        query.addErrback(self.hanlde_error, item, spider)
+
+    def do_insert(self, cursor, item):
+        inser_sql = """
+             INSERT INTO cnblogs_article
+             (url_object_id, title, url, front_image_url, front_image_path, praise_nums, comment_nums, fav_nums, tags, content, create_date)
+             VALUES 
+             (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+
+        """
+        params = list()
+        params.append(item.get("url_object_id", ""))
+        params.append(item.get("title", ""))
+        params.append(item.get("url", ""))
+
+        front_image = ",".join(item.get("front_image_url", []))
+        params.append(front_image)
+
+        params.append(item.get("front_image_path", ""))
+        params.append(item.get("praise_nums", 0))
+        params.append(item.get("comment_nums", 0))
+        params.append(item.get("fav_nums", 0))
+        params.append(item.get("tags", ""))
+        params.append(item.get("content", ""))
+        params.append(item.get("create_date", "2000-01-01"))
+        cursor.execute(inser_sql, tuple(params))
+        
+    def hanlde_error(self, failure, item, spider):
+        print(failure)
+```
+   
+   
+   #### **数据插入主键冲突的解决方案**  ON DUPLICATE KEY UPDATE
+   
+   ```sql
+    inser_sql = """
+             INSERT INTO cnblogs_article
+             (url_object_id, title, url, front_image_url, front_image_path, praise_nums, comment_nums, fav_nums, tags, content, create_date)
+             VALUES 
+             (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE praise_nums = VALUES(praise_nums), comment_nums = VALUES(comment_nums), fav_nums = VALUES(fav_nums)
+      
+```
+    
+   #### scrapy itemloader提取信息
+   
+   ```python
+from scrapy.loader import ItemLoader
 
 ```
    
 
-    
-               
-       
-      
       
     
 

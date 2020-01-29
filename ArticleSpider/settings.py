@@ -71,7 +71,7 @@ ITEM_PIPELINES = {
     'ArticleSpider.pipelines.ArticleImagePipeline': 1,
     'ArticleSpider.pipelines.JsonWithEncodingPipeline': 2,
     # 'ArticleSpider.pipelines.MysqlPipeline': 3,
-    'ArticleSpider.pipelines.MysqlTwistedPipline': 3,
+    'ArticleSpider.pipelines.MysqlTwistedPipeline': 3,
     'ArticleSpider.pipelines.ArticlespiderPipeline': 300}
 # scrapy.pipelines.images.ImagesPipeline': 1}
 
@@ -104,3 +104,5 @@ MYSQL_HOST = "rm-bp1z8e736h17ic2n2ao.mysql.rds.aliyuncs.com"
 MYSQL_DB = "mydb"
 MYSQL_USER = "root"
 MYSQL_PASSWD = "Lbj19841230"
+
+USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.54 Safari/536.5'

@@ -4,6 +4,7 @@ import json
 from urllib import parse
 
 import scrapy
+from scrapy.loader import ItemLoader
 from scrapy import Request
 import requests
 from ArticleSpider.items import CdnBlogArtcleItem
@@ -28,15 +29,16 @@ class CnblogsSpider(scrapy.Spider):
         2. 获取下一个的url并交给scrapy进行下载，下载完成后交给parse继续进行处理
         """
         # todo 正式环境，解除限制
-        post_nodes = response.css('div#news_list .news_block')  #[:1]
+        post_nodes = response.css('div#news_list .news_block')[:0]
         for post_node in post_nodes:
             image_url = post_node.css('.entry_summary a img::attr(src)').extract_first("")
             post_url = post_node.css('h2 a::attr(href)').extract_first("")
             yield Request(url=parse.urljoin(response.url, post_url), meta={"front_image_url": image_url},
                           callback=self.parse_detail)
+
         # 非调试放开这里 循环下一个url
-        next_url = response.xpath("//div[@class='pager']/a[contains(text(),'Next >')]/@href").extract_first()
-        yield Request(url=parse.urljoin(response.url, next_url), callback=self.parse)
+        # next_url = response.xpath("//div[@class='pager']/a[contains(text(),'Next >')]/@href").extract_first()
+        # yield Request(url=parse.urljoin(response.url, next_url), callback=self.parse)
 
         """
         方案二:
@@ -49,13 +51,15 @@ class CnblogsSpider(scrapy.Spider):
     def parse_detail(self, response):
         match_re = re.match(".*?(\d+)", response.url)
         if match_re:
-            article_item = CdnBlogArtcleItem()
             post_id = match_re.group(1)
+
+            ''' 被itemloader优化的代码
+            article_item = CdnBlogArtcleItem()
             # title =  response.css('div#news_title a::text').extract_first("")
             # create_date = response.css('div#news_info span.time::text').extract_first("")
             # content =  response.css('div#news_content').extract_first("")
             # tag_list = response.css('div.news_tags a::text').extract()
-
+            
             title = response.xpath('//*[@id="news_title"]//a/text()').extract_first("")
             create_date = response.xpath('//div[@id="news_info"]//span[@class="time"]/text()').extract_first("")
             match_re = re.match(".*?(\d+.*)", create_date)
@@ -75,6 +79,17 @@ class CnblogsSpider(scrapy.Spider):
                 article_item["front_image_url"] = [image_url]
             else:
                 article_item["front_image_url"] = []
+            '''
+
+            item_loader = ItemLoader(item=CdnBlogArtcleItem(), response=response)
+            item_loader.add_xpath("title", '//*[@id="news_title"]//a/text()')
+            item_loader.add_xpath("create_date", '//div[@id="news_info"]//span[@class="time"]/text()')
+            item_loader.add_xpath("content", '//div[@id="news_content"]')
+            item_loader.add_xpath("tags", '//div[@class="news_tags"]//a/text()')
+            item_loader.add_value("url", response.url)
+            item_loader.add_value("front_image_url", response.meta.get("front_image_url", ""))
+
+            article_item = item_loader.load_item()
 
             # 同步請请求和异步请求
             # html = requests.get("https://news.cnblogs.com/NewsAjax/GetAjaxNewsInfo?contentId=654012")

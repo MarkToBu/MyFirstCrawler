@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import codecs
 import json
+from datetime import datetime
 
+import now as now
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.exporters import JsonItemExporter
 from twisted.enterprise import  adbapi
@@ -81,7 +83,8 @@ class MysqlPipeline(object):
 
         return item
 
-class MysqlTwistedPipline(object):
+
+class MysqlTwistedPipeline(object):
 
     def __init__(self,dbpool):
         self.dbpool = dbpool
@@ -106,13 +109,12 @@ class MysqlTwistedPipline(object):
         query = self.dbpool.runInteraction(self.do_insert, item)
         query.addErrback(self.hanlde_error, item, spider)
 
-
     def do_insert(self, cursor, item):
         inser_sql = """
              INSERT INTO cnblogs_article
              (url_object_id, title, url, front_image_url, front_image_path, praise_nums, comment_nums, fav_nums, tags, content, create_date)
              VALUES 
-             (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+             (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE praise_nums = VALUES(praise_nums), comment_nums = VALUES(comment_nums), fav_nums = VALUES(fav_nums)
 
         """
         params = list()
@@ -129,14 +131,11 @@ class MysqlTwistedPipline(object):
         params.append(item.get("fav_nums", 0))
         params.append(item.get("tags", ""))
         params.append(item.get("content", ""))
-        params.append(item.get("create_date", "2000-01-01"))
+        params.append(item.get("create_date", now.strftime("%Y-%m-%d %H-%M-%S")))
         cursor.execute(inser_sql, tuple(params))
-
 
     def hanlde_error(self, failure, item, spider):
         print(failure)
-
-
 
 
 class ArticleImagePipeline(ImagesPipeline):
