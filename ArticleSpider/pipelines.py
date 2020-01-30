@@ -2,8 +2,8 @@
 import codecs
 import json
 from datetime import datetime
+import time
 
-import now as now
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.exporters import JsonItemExporter
 from twisted.enterprise import  adbapi
@@ -131,7 +131,7 @@ class MysqlTwistedPipeline(object):
         params.append(item.get("fav_nums", 0))
         params.append(item.get("tags", ""))
         params.append(item.get("content", ""))
-        params.append(item.get("create_date", now.strftime("%Y-%m-%d %H-%M-%S")))
+        params.append(item.get("create_date", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
         cursor.execute(inser_sql, tuple(params))
 
     def hanlde_error(self, failure, item, spider):

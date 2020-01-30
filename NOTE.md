@@ -54,7 +54,7 @@
    https://www.lfd.uci.edu/~gohlke/pythonlibs/  
 ### Scrapy文档
    https://doc.scrapy.org/en/latest/intro/tutorial.html
-### Scrapy爬虫课程
+### 4.  Scrapy爬虫课程
    #### 基本知识
     - 网页抓取常见方案： 
        深度优先， 广度优先   
@@ -344,15 +344,91 @@ class MysqlTwistedPipline(object):
 ```
     
    #### scrapy itemloader提取信息
+   itemLoader的使用：
+   
    
    ```python
 from scrapy.loader import ItemLoader
+def parse_detail(self, response):
+    item_loader = ItemLoader(item=CdnBlogArtcleItem(), response=response)
+    item_loader.add_xpath("tags", '//div[@class="news_tags"]//a/text()')
+    item_loader.add_css("xxx",'xxxx')
+    item_loader.add_value("url", response.url)
+    item_loader.add_value("front_image_url", response.meta.get("front_image_url", ""))
+    article_item = item_loader.load_item()
+```
+
+---- 
+      
+   #### scrapy itemlaoder对字段逻辑进行处理
+   > 使用MapComose对值进行处理
+   > 使用TakeFirst()对值进行取第一个操作 
+   
+```python
+from scrapy.loader.processors import MapCompose,TakeFirst
+
+def addTag(value):
+    return value +"--my"
+
+class CdnBlogArtcleItem(scrapy.Item):
+    title = scrapy.Field(
+       input_processor = MapCompose(addTag)
+       output_processor = TakeFirst()
+    )
+    create_date = scrapy.Field()
+    url = scrapy.Field()
+
+    # 处理url
+    url_object_id = scrapy.Field(
+        input_processor = MapCompose()
+    )
+ 
+```   
+
+   #### scrapy 自定义itemloader实现特殊需求
+   > 自定义itemloader
+   ```python
+
+from scrapy.loader import ItemLoader
+from scrapy.loader.processors import MapCompose, TakeFirst, Identity, Join
+
+# 自定义itemloader
+class ArticleItemLoader(ItemLoader):
+    default_output_processor = TakeFirst()
+
+# 对字段使用正则
+def dateConvert(value):
+    match_re = re.match(".*?(\d+.*)", value)
+    if match_re:
+        return match_re.group(1)
+    else:
+        return now.strftime("%Y-%m-%d %H-%M-%S")
+
+# 移除某个标签
+def remove_tags(value):
+    if value == "linux":
+        return ""
+    else:
+        return value
+
+class CdnBlogArtcleItem(scrapy.Item):
+    title = scrapy.Field()
+    create_date = scrapy.Field(
+        input_processor = MapCompose(dateConvert)
+    )
+    front_image_url = scrapy.Field(
+        output_processor=Identity()
+    )
+    #对字段分割符处理
+    tags = scrapy.Field(
+        output_processor= Join(separator=",")
+    )
+    content = scrapy.Field()
 
 ```
+   > 使用定义好的itemloader   
+     item_loader = ArticleItemLoader(item=CdnBlogArtcleItem(), response=response)
    
-
-      
-    
 
          
    

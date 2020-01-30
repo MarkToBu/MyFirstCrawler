@@ -103,6 +103,6 @@ IMAGES_STORE = os.path.join(project_dir,'images')
 MYSQL_HOST = "rm-bp1z8e736h17ic2n2ao.mysql.rds.aliyuncs.com"
 MYSQL_DB = "mydb"
 MYSQL_USER = "root"
-MYSQL_PASSWD = "Lbj19841230"
+MYSQL_PASSWD = "xxxx"
 
-USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.54 Safari/536.5'
+# USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.54 Safari/536.5'

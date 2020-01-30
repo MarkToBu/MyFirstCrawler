@@ -4,7 +4,8 @@ import json
 from urllib import parse
 
 import scrapy
-from scrapy.loader import ItemLoader
+# from scrapy.loader import ItemLoader
+from ArticleSpider.items import ArticleItemLoader
 from scrapy import Request
 import requests
 from ArticleSpider.items import CdnBlogArtcleItem
@@ -29,9 +30,11 @@ class CnblogsSpider(scrapy.Spider):
         2. 获取下一个的url并交给scrapy进行下载，下载完成后交给parse继续进行处理
         """
         # todo 正式环境，解除限制
-        post_nodes = response.css('div#news_list .news_block')[:0]
+        post_nodes = response.css('div#news_list .news_block') # [:1]
         for post_node in post_nodes:
             image_url = post_node.css('.entry_summary a img::attr(src)').extract_first("")
+            if image_url.startswith("//"):
+                image_url = "https:" + image_url
             post_url = post_node.css('h2 a::attr(href)').extract_first("")
             yield Request(url=parse.urljoin(response.url, post_url), meta={"front_image_url": image_url},
                           callback=self.parse_detail)
@@ -81,15 +84,15 @@ class CnblogsSpider(scrapy.Spider):
                 article_item["front_image_url"] = []
             '''
 
-            item_loader = ItemLoader(item=CdnBlogArtcleItem(), response=response)
+            item_loader = ArticleItemLoader(item=CdnBlogArtcleItem(), response=response)
             item_loader.add_xpath("title", '//*[@id="news_title"]//a/text()')
             item_loader.add_xpath("create_date", '//div[@id="news_info"]//span[@class="time"]/text()')
             item_loader.add_xpath("content", '//div[@id="news_content"]')
             item_loader.add_xpath("tags", '//div[@class="news_tags"]//a/text()')
             item_loader.add_value("url", response.url)
-            item_loader.add_value("front_image_url", response.meta.get("front_image_url", ""))
+            if  response.meta.get("front_image_url", []):
+                item_loader.add_value("front_image_url", response.meta.get("front_image_url", []))
 
-            article_item = item_loader.load_item()
 
             # 同步請请求和异步请求
             # html = requests.get("https://news.cnblogs.com/NewsAjax/GetAjaxNewsInfo?contentId=654012")
@@ -98,10 +101,11 @@ class CnblogsSpider(scrapy.Spider):
             # '{"ContentID":654012,"CommentCount":0,"TotalView":31,"DiggCount":0,"BuryCount":0}
 
             # yield Request(url=parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)),meta={"article_item", article_item}, callback=self.parse_nums)
-            yield Request(url=parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)), meta={"article_item": article_item}, callback=self.parse_nums)
+            yield Request(url=parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)), meta={"article_item": item_loader, "url": response.url}, callback=self.parse_nums)
 
     def parse_nums(self, response):
         j_data = json.loads(response.text)
+        ''' 被精简的代码
         article_item = response.meta.get("article_item", "")
         commentCount = j_data["CommentCount"]
         totalView = j_data["TotalView"]
@@ -113,6 +117,16 @@ class CnblogsSpider(scrapy.Spider):
         article_item["fav_nums"] = totalView
         article_item["comment_nums"] = commentCount
         article_item["url_object_id"] = common.get_md5(article_item["url"])
+        '''
+
+        item_loader = response.meta.get("article_item", "")
+        item_loader.add_value("praise_nums", j_data["DiggCount"])
+        item_loader.add_value("fav_nums", j_data["TotalView"])
+        item_loader.add_value("comment_nums", j_data["CommentCount"])
+        item_loader.add_value("url_object_id", common.get_md5(response.meta.get("url", "")))
+
+        article_item = item_loader.load_item()
+
         yield article_item
 
 
